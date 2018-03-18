@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ -z "$1" ]
+ then echo -e "give me right path"
+  tput sgr0
+ else
+   echo -e "cleaning names in path" $1
+   find $1 -depth -name '* *' -execdir bash -c 'for i; do echo "moving:"$i; mv "$i" "${i// /_}"; done' _ {} +
+    if [ -z "$i" ]
+     then
+       echo "Nothing to clean"
+    fi
+fi
+
+
