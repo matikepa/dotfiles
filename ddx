@@ -1,0 +1,10 @@
+#!/bin/bash
+SUPERPATH="/c/temp/removeme"
+
+if [ ! $# == 1 ]
+   then echo " as first parametr give name of file"
+      else
+        echo -e "Size of the file => "`ls -lah $1 |cut -d" " -f5`
+	dd if=$1 of=${SUPERPATH}/$1 status=progress bs=1M
+	echo -e "$1 located in ${SUPERPATH}"
+fi
