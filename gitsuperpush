@@ -1,0 +1,13 @@
+#!/bin/bash
+#git add commit and push in one line
+# mkepa 03.2018
+
+echo -e "Set a comment for your push:"
+
+read comment
+
+echo ""
+
+git add .
+git commit -m " $comment "
+git push
