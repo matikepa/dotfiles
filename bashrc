@@ -2,7 +2,7 @@
 
 alias temp='cd /c/temp/'
 alias gs='git status'
-alias extip='curl -s ipinfo.io |tr -d '{}\"''
+alias get-external-ip='curl -s ipinfo.io |tr -d "{}\""'
 alias p='ping -t'
 alias fullname='readlink -f'
 alias passwd-gen='echo "Your new generated passwd: "; date +%s | sha256sum | base64 | head -c 15;echo'
