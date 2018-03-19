@@ -7,3 +7,7 @@ filetype on
 
 " comments are easier to read
 colorscheme desert
+
+" removing tabs to spaces for better json editing
+set tabstop=2
+set expandtab
