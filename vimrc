@@ -1,7 +1,7 @@
 " UTF8
 set encoding=utf-8
 
-" Use syntax highlighting 
+" Use syntax highlighting
 syntax on
 filetype on
 
@@ -11,3 +11,9 @@ colorscheme desert
 " removing tabs to spaces for better json editing
 set tabstop=2
 set expandtab
+
+" Turning off auto indent when pasting text into vim
+set paste
+
+" setting search highlighing
+set hlsearch
