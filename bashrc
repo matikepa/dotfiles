@@ -12,6 +12,7 @@ alias fullname='readlink -f'
 alias get-external-ip='curl -s ipinfo.io |tr -d "{}\""'
 alias genpasswd='echo "Your new generated passwd: "; cat /dev/urandom  | head -n10 | sha512sum | base64 | head -c 10 ;echo'
 alias download='curl -kLOC - '
+alias weather='curl -s http://wttr.in/~vienna'
 
 #git aliases
 alias gs='git status'
