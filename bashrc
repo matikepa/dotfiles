@@ -1,15 +1,22 @@
 #$ cat ~/.bashrc
+# for the windows git-MINGW64
 
 alias temp='cd /c/temp/'
-alias gs='git status'
-alias get-external-ip='curl -s ipinfo.io |tr -d "{}\""'
 alias p='ping -t'
 alias ll='ls -l'
 alias ls='ls -F --color=auto --show-control-chars'
 alias l='ls -lah'
 alias fullname='readlink -f'
-alias passwd-gen='echo "Your new generated passwd: "; date +%s | sha256sum | base64 | head -c 15;echo'
+
+# other usefull stuff
+alias get-external-ip='curl -s ipinfo.io |tr -d "{}\""'
+alias genpasswd='echo "Your new generated passwd: "; cat /dev/urandom  | head -n10 | sha512sum | base64 | head -c 10 ;echo'
 alias download='curl -kLOC - '
+
+#git aliases
+alias gs='git status'
+alias gp='git pull --verbose'
+alias gitupdate-localrepos='for i in $(ls -1 /c/temp/git-repos); do cd /c/temp/git-repos/$i ;echo "updating $i"; git pull ;done'
 
 # Eternal bash history.
 # ---------------------
