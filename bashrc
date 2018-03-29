@@ -1,11 +1,12 @@
 #$ cat ~/.bashrc
 # for the windows git-MINGW64
 
-alias temp='cd /c/temp/'
 alias p='ping -t'
 alias ll='ls -l'
 alias ls='ls -F --color=auto --show-control-chars'
 alias l='ls -lah'
+alias grep='grep --color=auto'
+alias temp='cd /c/temp/'
 alias fullname='readlink -f'
 
 # other usefull stuff
