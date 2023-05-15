@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ -z "$1" ]
+ then echo "give me IP address"
+  tput sgr0
+ else
+   echo ">> Checking " $1
+   curl -s "ipinfo.io/${1}"
+fi
