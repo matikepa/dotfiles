@@ -7,6 +7,9 @@ xcode-select --install
 # Install rosetta intel-to-apple emulator
 softwareupdate --install-rosetta
  
+# Install ohmyzsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+ 
 # Install Homebrew for ARM
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 # Add alias and PATH to ~/.zshrc for your convenience
@@ -18,8 +21,11 @@ brew doctor
 # Install cli tools
 brew install brew-cask-completion watch wget tree jq yq tmux ncdu viddy coreutils
  
-# Install ohmyzsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+ 
+# Set cool prompt
+# append the ~/.zshrc with below
+PROMPT=' %{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info)'
+ 
  
 # install multiple screen support through displaylink
 brew tap homebrew/cask-drivers
@@ -29,9 +35,11 @@ brew install displaylink
 brew install --cask iterm2                     # advanced terminal
 brew install --cask visual-studio-code
 brew install --cask sublime-text
+brew install --cask dbeaver-community          # db tool
 brew install --cask flameshot                  # make a cool screens with arrows and stuff
-brew install --cask termius                    # ssh sessions manager
+brew install --cask firefox-esr                # Firefox with extended support
 brew install --cask postman
+brew install --cask keystore-explorer
 brew install libpq                             # psql for mac
 brew link --force libpq                        # force link for zsh
  
@@ -96,11 +104,25 @@ gcloud init
 ###     OPTIONAL   ###
 ######################
  
+# Generate SSH key
+ssh-keygen -t ed25519 -f ~/.ssh/mm -C mm@email
+ 
 # Most times mac comes with a preinstalled version of git which you can use.
 # If, however, you do not want to use it
 sudo mv /usr/bin/git /usr/bin/default-git
 brew install git
 brew link --force git #OPTIONAL
 git --version
-git config --global user.name "yourname"
-git config --global user.email "yourmail"
+git config --global user.name "mm"
+git config --global user.email "mm@email"
+git config --global gpg.format ssh
+git config --global user.signingkey 'ssh-ed25519 AAAAxxxxxxx mm@email'
+git config --global commit.gpgsign true
+git config --global tag.gpgsign true
+ 
+# In case ssh/gpg signing does not work, create following file
+~/.config/git/allowed_signers
+# with content (you can add more keys here)
+mm@email ssh-ed25519 AAAAxxxxxxx mm@email
+# add to global config
+git config --global gpg.ssh.allowedSignersFile "$HOME/.config/git/allowed_signers"
