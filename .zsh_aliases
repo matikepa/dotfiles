@@ -1,0 +1,77 @@
+#PATH stuff
+PATH=$PATH:/opt/homebrew/bin:/Users/mati/bin
+
+#fix umlaut problem
+export LC_CTYPE='UTF-8'
+
+#mystuff
+alias ll='ls -lah'
+alias l='ls -l'
+alias removeme='mkdir -p /tmp/_removeme; cd /tmp/_removeme'
+alias v='viddy -b -d ls -l'
+alias pip='pip3'
+alias python='python3'
+
+#proxy workaround
+export no_proxy="localhost,127.0.0.1,::1"
+export http_proxy="http://www-proxy.xxx.co.at:8081"
+export https_proxy="http://www-proxy.xxx.co.at:8081"
+export HTTPS_PROXY=$https_proxy
+export HTTP_PROXY=$http_proxy
+export NO_PROXY=$no_proxy
+alias proxyon-xxx="export ${http_proxy}; export ${https_proxy};export ${no_proxy};"
+alias proxyoff-xxx="unset no_proxy; unset http_proxy; unset https_proxy "
+alias proxyon-gcloud="gcloud config set proxy/type http; gcloud config set proxy/address proxy; gcloud config set proxy/port 8081"
+alias proxyoff-gcloud="gcloud config unset proxy/address; gcloud config unset proxy/port; gcloud config unset proxy/type"
+alias proxyoff="unset no_proxy; unset http_proxy; unset https_proxy; gcloud config unset proxy/address; gcloud config unset proxy/port; gcloud config unset proxy/type"
+#export proxy_host="webproxy.xxx.co.at"
+#export proxy_port="8080"
+
+#aliases
+alias ipa='curl -s ipinfo.io |tr -d "{}\""'
+alias weather='curl -s v2.wttr.in/vienna'
+alias work='cd /Users/mati/Library/CloudStorage/xxx/Dokumente/work'
+alias download='curl -kSLOC - '
+alias p='ping'
+alias cresp='curl -sILw "HTTP response >> %{http_code}" -o /dev/null '
+alias tf='terraform'
+alias p1='ping 1.1.1.1'
+alias p8='ping 8.8.8.8'
+alias ll='ls -lah --color'
+alias d='docker'
+alias db="docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy"
+alias ks='kustomize '
+alias ks3='/Users/mati/bin/kustomize_v3.5.4 '
+alias t='terraform '
+alias t-debug='export TF_LOG="TRACE"; export TF_LOG_PATH="/tmp/_removeme/terraform.log"; tail -F /tmp/_removeme/terraform.log'
+
+#kubectl aliases
+alias cleanpods="kubectl get pods --all-namespaces -o wide| grep -i \"Error\|NodeShutdown\|Terminated\|Completed\" | awk '{print $1, $2}'| xargs -n2 kubectl delete pod -n"
+alias k='kubectl '
+alias kx='kubectx '
+alias kint='kubectl --kubeconfig ~/.kube/xxx-intern'
+
+#git aliases
+alias gs='git status -sb'
+alias gitlocal=' cd ~/gitlocal'
+alias gitupdatelocal=' for i in $(ls -1 ~/gitlocal); do cd ~/gitlocal/$i ;echo ">>> updating $i"; git fetch --all ;git pull --all --rebase ;done'
+alias gl='git log --graph --decorate --pretty=oneline --abbrev-commit --all --format=format:'\''%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'\'''
+alias gp='git pull --rebase --verbose --all --prune'
+alias gco='git checkout'
+alias gb='git branch -a'
+alias gclean='git fetch --all -Pp'
+
+
+
+
+# load ssh keys
+if [ -z "$SSH_AGENT_PID" ]; then
+    eval `ssh-agent -s`
+	ssh-add ~/.ssh/mkepa-rewe
+	# ssh-add ~/.ssh/cloudshell
+	# ssh-add ~/.ssh/google_compute_engine
+	ssh-add -L
+else
+	echo ">> Loaded ssh keys <<< "
+	ssh-add -L
+fi
