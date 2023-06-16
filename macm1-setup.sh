@@ -38,6 +38,7 @@ brew install --cask sublime-text
 brew install --cask dbeaver-community          # db tool
 brew install --cask flameshot                  # make a cool screens with arrows and stuff
 brew install --cask firefox-esr                # Firefox with extended support
+brew install --cask orbstack                   # replacement for docker desktop
 brew install --cask postman
 brew install --cask keystore-explorer
 brew install libpq                             # psql for mac
