@@ -11,6 +11,7 @@ alias removeme='mkdir -p /tmp/_removeme; cd /tmp/_removeme'
 alias v='viddy -b -d ls -l'
 alias pip='pip3'
 alias python='python3'
+alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
 
 #proxy workaround
 export no_proxy="localhost,127.0.0.1,::1"
