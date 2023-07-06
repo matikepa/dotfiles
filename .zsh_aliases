@@ -67,12 +67,10 @@ alias gclean='git fetch --all -Pp'
 
 # load ssh keys
 if [ -z "$SSH_AGENT_PID" ]; then
-    eval `ssh-agent -s`
-	ssh-add ~/.ssh/mkepa-rewe
-	# ssh-add ~/.ssh/cloudshell
-	# ssh-add ~/.ssh/google_compute_engine
-	ssh-add -L
+    eval $(ssh-agent -s)
+    ssh-add ~/.ssh/mkepa-rewe
+    ssh-add -L
 else
-	echo ">> Loaded ssh keys <<< "
-	ssh-add -L
+    echo ">> Loaded ssh keys <<< "
+    ssh-add -L
 fi
