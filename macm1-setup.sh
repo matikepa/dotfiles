@@ -24,8 +24,10 @@ brew install brew-cask-completion watch wget tree jq yq tmux ncdu viddy coreutil
  
 # Set cool prompt
 # append the ~/.zshrc with below
+cp ~/.zshrc ~/.zshrc_backup
+cat << _EOFF >> ~/.zshrc
 PROMPT=' %{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info)'
- 
+_EOFF
  
 # install multiple screen support through displaylink
 brew tap homebrew/cask-drivers
@@ -38,6 +40,7 @@ brew install --cask sublime-text
 brew install --cask dbeaver-community          # db tool
 brew install --cask flameshot                  # make a cool screens with arrows and stuff
 brew install --cask firefox-esr                # Firefox with extended support
+brew install --cask google-chrome
 brew install --cask orbstack                   # replacement for docker desktop
 brew install --cask rectangle                  # free window manager based on spectacle
 brew install --cask postman
