@@ -24,9 +24,9 @@ brew install brew-cask-completion watch wget tree jq yq tmux ncdu viddy coreutil
  
 # Set cool prompt
 # append the ~/.zshrc with below
-cp ~/.zshrc ~/.zshrc_backup
+cp ~/.zshrc ~/.zshrc_backup_$(date +%F)
 cat << _EOFF >> ~/.zshrc
-PROMPT=' %{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info)'
+PROMPT='%{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info)'
 _EOFF
  
 # install multiple screen support through displaylink
