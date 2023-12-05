@@ -1,0 +1,14 @@
+#!/bin/bash
+
+localfiles=$(ls -1 ~/gitlocal)
+
+echo -e "<<<\n ${localfiles} \n<<< updating"
+
+for i in ${localfiles}; do
+    cd ~/gitlocal/$i
+    echo ">>> updating $i"
+    git fetch --all
+    git pull --rebase --autostash --verbose --all --prune
+done
+
+cd ~/gitlocal
