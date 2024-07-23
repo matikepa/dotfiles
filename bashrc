@@ -1,7 +1,13 @@
 #$ cat ~/.bashrc
 # for the windows git-MINGW64
-## multiline color bash commandline
-PS1="[\e[1;33m\u\e[m@\e[1;36m\h\e[m] [\$(date +%k:%M:%S)]\n\e[0;32m[\w]\e[m \n\$ "
+
+## adding git branch info
+parse_git_branch() {
+     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+
+## Multiline bash commandline
+PS1="[\e[1;33m\u\e[m@\e[1;36m\h\e[m] [\$(date +%k:%M:%S)]\n\e[0;32m[\w]\e[m \[\e[91m\]\$(parse_git_branch)\[\e[00m\]  \n\$ "
 
 alias p='ping -t'
 alias ll='ls -l'
