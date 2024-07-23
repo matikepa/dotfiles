@@ -1,5 +1,7 @@
 #$ cat ~/.bashrc
 # for the windows git-MINGW64
+## multiline color bash commandline
+PS1="[\e[1;33m\u\e[m@\e[1;36m\h\e[m] [\$(date +%k:%M:%S)]\n\e[0;32m[\w]\e[m \n\$ "
 
 alias p='ping -t'
 alias ll='ls -l'
