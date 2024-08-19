@@ -9,6 +9,7 @@ for i in ${localfiles}; do
     echo ">>> updating $i"
     git fetch --all
     git pull --rebase --autostash --verbose --all --prune
+    git submodule update --init --recursive
 done
 
 cd ~/gitlocal
