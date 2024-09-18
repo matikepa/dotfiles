@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+#
+# pip3 install speedtest-cli
+#
+import speedtest
+
+st = speedtest.Speedtest()
+
+# search for best server
+print('>> Search best server <<')
+st.get_best_server()
+
+print('>> Starting networking test <<')
+
+#ping test
+ping = st.results.ping
+print(f'\n> Ping {ping} ms')
+
+# download test
+download = st.download()/1024/1024
+upload = st.upload()/1024/1024
+
+print(f'> Download {download:.2f} Mb/s')
+print(f'> Upload {upload:.2f} Mb/s\n')
