@@ -3,6 +3,7 @@
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
+export PATH="/opt/homebrew/bin:$PATH"
 
 # Set locale
 export LC_ALL=en_US.UTF-8
@@ -20,7 +21,13 @@ COMPLETION_WAITING_DOTS="true"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(
+    aws
+    dotenv
+    macos
+    docker
+    docker-compose
+    )
 source $ZSH/oh-my-zsh.sh
 
 #set cool prompt
@@ -33,6 +40,22 @@ PROMPT='%{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info)'
 if [ -f ~/.zsh_aliases ]; then
     . ~/.zsh_aliases
 fi
+
+# NVM
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+source <(npm completion)
+# instead of doint this `nvm use 20`
+# run this directi in console `nvm alias default 20`
+
+# add exa complete
+fpath=(~/.zfunc $fpath)
+  
+# aws cli autocomplete
+autoload bashcompinit && bashcompinit
+autoload -Uz compinit && compinit
+complete -C '/opt/homebrew/bin/aws_completer' aws
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/mati/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/mati/google-cloud-sdk/path.zsh.inc'; fi
