@@ -29,7 +29,8 @@ alias proxyoff="unset no_proxy; unset http_proxy; unset https_proxy; gcloud conf
 #export proxy_port="8080"
 
 #aliases
-alias ipa='curl -s ipinfo.io |tr -d "{}\""'
+#alias ipa='curl -s ipinfo.io |tr -d "{}\""'
+alias ipa='curl -s https://checkip.amazonaws.com/ '
 alias weather='curl -s v2.wttr.in/vienna'
 alias work='cd /Users/mati/Library/CloudStorage/xxx/Dokumente/work'
 alias download='curl -kSLOC - '
@@ -53,19 +54,16 @@ alias kx='kubectx '
 alias kint='kubectl --kubeconfig ~/.kube/xxx-intern'
 
 #git aliases
-alias gs='git status -sb'
+alias gitclean='git fetch --all --prune --prune-tags; git branch --merged| grep -Ev "(^\*|master|main|dev)" | xargs git branch --delete'
 alias gitlocal=' cd ~/gitlocal'
-alias gitupdatelocal='echo -e "<<<\n$(ls -1 ~/gitlocal)\n<<< updating"; for i in $(ls -1 ~/gitlocal); do cd ~/gitlocal/$i ;echo ">>> updating $i"; git fetch --all ;git pull --all --rebase ;done; cd ~/gitlocal'
-alias gl='git log --graph --decorate --pretty=oneline --abbrev-commit --all --format=format:'\''%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'\'''
+alias gs='git status -sb --show-stash'
+alias gl="git log --graph --decorate --pretty=oneline --abbrev-commit --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'"
+alias glfulldate="git log --graph --decorate --all --topo-order --date=format-local:'%Y-%m-%d %H:%M:%S' --pretty=format:'%C(cyan)%h%Creset %C(black bold)%ad%Creset%C(auto)%d %s'"
 alias gp='git pull --rebase --autostash --verbose --all --prune'
 alias gp-submodule='git submodule update --init --recursive'
 alias gp-full='gp; gp-submodule'
 alias gco='git checkout'
 alias gb='git branch -a'
-alias gclean='git fetch --all -Pp'
-
-
-
 
 # load ssh keys
 if [ -z "$SSH_AGENT_PID" ]; then
