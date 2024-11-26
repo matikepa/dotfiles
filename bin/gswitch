@@ -1,0 +1,10 @@
+#!/bin/bash
+set -eu
+
+account=$(gcloud auth list --format="value(account)" | /snap/bin/fzf-unofficial-18-04.fzf)
+if [ -n "$account" ]; then
+  gcloud config set account ${account}
+  project=$(gcloud projects list --format="value(PROJECT_ID)" | /snap/bin/fzf-unofficial-18-04.fzf)
+  gcloud config set project ${project}
+  echo "Logged in as $account to project $project"
+fi
