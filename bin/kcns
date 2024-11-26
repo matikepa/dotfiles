@@ -1,0 +1,11 @@
+#!/bin/bash
+set -eu
+
+if [ -z "$1" ]; then
+    echo "give me a namespace"
+    exit 1
+else
+    NS=$1
+    echo -e "running install check for ${NS} install-operator "
+    kubectl config set-context --current --namespace=${NS}
+fi
