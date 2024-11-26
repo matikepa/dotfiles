@@ -1,0 +1,27 @@
+#!/bin/bash
+set -eu
+
+# check if you are sudo
+if [ "$EUID" != 0 ]; then
+    echo ">>> You are not root, authenticate yourself!"
+    sudo "$0" "$@"
+    exit $?
+fi
+
+echo ">>> Running snap upgrade"
+
+snap refresh
+
+echo ">>> Removing all disabled snaps"
+
+snap list --all
+snap list --all | awk '/disabled/{print $1, $3}' |
+    while read snapname revision; do
+        snap remove "$snapname" --revision="$revision"
+    done
+
+echo ">>> Running system upgrade"
+
+apt autoremove -y &&
+    apt update &&
+    apt upgrade
