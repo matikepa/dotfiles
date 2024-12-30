@@ -30,8 +30,19 @@ plugins=(
     )
 source $ZSH/oh-my-zsh.sh
 
-#set cool prompt
-PROMPT='%{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info)'
+##set cool prompt
+#PROMPT='%{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info)'
+
+## set even cooler prompt
+## adding git branch info
+parse_git_branch() {
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+
+## Multiline zsh commandline
+PROMPT='%{$fg_bold[yellow]%}%n%{$reset_color%}@%{$fg_bold[cyan]%}%m%{$reset_color%} [%D{%H:%M:%S}]
+%{$fg[green]%}%~%{$reset_color%} %{$fg[red]%}$(parse_git_branch)%{$reset_color%}
+> '
 
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
