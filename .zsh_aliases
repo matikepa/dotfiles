@@ -1,23 +1,10 @@
 #PATH stuff
-PATH=/opt/homebrew/bin:/Users/mati/bin:$PATH
+PATH=/opt/homebrew/bin:/Users/m.kepa/bin:$PATH
+#add vscode search to local path
+PATH="$PATH:/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/"
 
 #fix umlaut problem
 export LC_CTYPE='UTF-8'
-
-#proxy workaround
-export no_proxy="localhost,127.0.0.1,::1"
-export http_proxy="http://www-proxy.xxx.co.at:8081"
-export https_proxy="http://www-proxy.xxx.co.at:8081"
-export HTTPS_PROXY=$https_proxy
-export HTTP_PROXY=$http_proxy
-export NO_PROXY=$no_proxy
-alias proxyon-xxx="export ${http_proxy}; export ${https_proxy};export ${no_proxy};"
-alias proxyoff-xxx="unset no_proxy; unset http_proxy; unset https_proxy "
-alias proxyon-gcloud="gcloud config set proxy/type http; gcloud config set proxy/address proxy; gcloud config set proxy/port 8081"
-alias proxyoff-gcloud="gcloud config unset proxy/address; gcloud config unset proxy/port; gcloud config unset proxy/type"
-alias proxyoff="unset no_proxy; unset http_proxy; unset https_proxy; gcloud config unset proxy/address; gcloud config unset proxy/port; gcloud config unset proxy/type"
-#export proxy_host="webproxy.xxx.co.at"
-#export proxy_port="8080"
 
 #mystuff
 alias removeme='mkdir -p /tmp/_removeme; cd /tmp/_removeme'
@@ -29,19 +16,18 @@ alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
 alias ipa='curl -s https://checkip.amazonaws.com/ '
 alias weatherv1='curl -s http://wttr.in/~vienna'
 alias weather='curl -s http://v2.wttr.in/~vienna'
-alias work='cd /Users/mati/Library/CloudStorage/xxx/Dokumente/work'
+alias work='cd /Users/m.kepa/Library/CloudStorage/xxx/work'
 alias download='curl -kSLOC - '
 alias cresp='curl -sILw "HTTP response >> %{http_code}" -o /dev/null '
 alias p='ping'
 alias p1='ping 1.1.1.1'
 alias p8='ping 8.8.8.8'
-alias ll='ls -lh'
-alias ls='ls -F --color=auto --show-control-chars'
+alias ll='ls -la'
+alias ls='ls -F --color=auto'
 alias l='ls -lah'
 alias grep='grep --color=auto'
 alias cdmktemp='cd $(mktemp -d)'
 alias supersync='rsync -aHAXxv --numeric-ids --progress -e "ssh -T -c aes128-gcm@openssh.com -o Compression=no -x"'
-
 
 #docker aliases
 alias d='docker'
@@ -56,24 +42,23 @@ alias t-debug='export TF_LOG="TRACE"; export TF_LOG_PATH="/tmp/_removeme/terrafo
 #kubectl aliases
 alias cleanpods="kubectl get pods --all-namespaces -o wide| grep -i \"Error\|NodeShutdown\|Terminated\|Completed\" | awk '{print $1, $2}'| xargs -n2 kubectl delete pod -n"
 alias k='kubectl '
-alias kx='kubectx '
 alias kf='kubectl logs -f'
 alias kp='kubectl get pods'
 alias ks='kubectl get services'
 alias krc='kubectl get rc'
+alias kinfo='kubectl config view --minify | yq'
 alias m='/usr/local/bin/minikube '
-alias kint='kubectl --kubeconfig ~/.kube/xxx-intern'
-alias ks='kustomize '
-alias ks3='/Users/mati/bin/kustomize_v3.5.4 '
+alias kx='kubectx '
+alias kns='kubens '
 
 #git aliases
-export GIT_PATH="/home/mati/work/git"
+export GIT_PATH="/Users/m.kepa/gitlocal"
 alias gco='git checkout'
 alias gb='git branch -a'
 alias gs='git status -sb --show-stash'
 alias gl="git log --graph --decorate --pretty=oneline --abbrev-commit --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'"
 alias gitlocalrepos='cd ${GIT_PATH}'
-alias gitupdatelocal=' for i in $(ls -1 ${GIT_PATH}); do cd ${GIT_PATH}/$i ;echo ">>> updating $i";git fetch --prune; git pull ;done'
+alias gitupdatelocal=' for i in $(ls -1 ${GIT_PATH}); do cd ${GIT_PATH}/$i ;echo ">>> updating $i";git fetch --prune; git pull ;done; gitlocalrepos'
 alias gitclean='git fetch --all --prune --prune-tags; git branch --merged| grep -Ev "(^\*|master|main|dev)" | xargs git branch --delete'
 alias gl="git log --graph --decorate --pretty=oneline --abbrev-commit --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'"
 alias glfulldate="git log --graph --decorate --all --topo-order --date=format-local:'%Y-%m-%d %H:%M:%S' --pretty=format:'%C(cyan)%h%Creset %C(black bold)%ad%Creset%C(auto)%d %s'"
@@ -81,12 +66,23 @@ alias gp='git pull --rebase --autostash --verbose --all --prune'
 alias gp-submodule='git submodule update --init --recursive'
 alias gp-full='gp; gp-submodule'
 
+# generate your ssh
+# ssh-keygen -t ed25519 -f ~/.ssh/mkepa-xxx -a 100 -C "nameEmailDomain"
 # load ssh keys
 if [ -z "$SSH_AGENT_PID" ]; then
     eval $(ssh-agent -s)
-    ssh-add ~/.ssh/mkepa-rewe
+    ssh-add ~/.ssh/mkepa-xxx
     ssh-add -L
 else
     echo ">> Loaded ssh keys <<< "
     ssh-add -L
 fi
+
+# completions
+source <(minikube completion zsh)
+source <(docker completion zsh)
+source <(helm completion zsh)
+source <(kubectl completion zsh)
+
+source <(awsprofile completion zsh)
+compdef _awsprofile awsprofile

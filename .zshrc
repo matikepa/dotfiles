@@ -27,18 +27,16 @@ plugins=(
     macos
     docker
     docker-compose
-    )
+)
 source $ZSH/oh-my-zsh.sh
 
-##set cool prompt
-#PROMPT='%{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info)'
+# #set cool prompt
+# PROMPT='%{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info)'
 
-## set even cooler prompt
 ## adding git branch info
 parse_git_branch() {
-    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+    git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
 }
-
 ## Multiline zsh commandline
 PROMPT='%{$fg_bold[yellow]%}%n%{$reset_color%}@%{$fg_bold[cyan]%}%m%{$reset_color%} [%D{%H:%M:%S}]
 %{$fg[green]%}%~%{$reset_color%} %{$fg[red]%}$(parse_git_branch)%{$reset_color%}
@@ -52,28 +50,19 @@ if [ -f ~/.zsh_aliases ]; then
     . ~/.zsh_aliases
 fi
 
-# NVM
+export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
+
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-source <(npm completion)
-# instead of doint this `nvm use 20`
-# run this directi in console `nvm alias default 20`
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 
-# add exa complete
-fpath=(~/.zfunc $fpath)
-  
-# aws cli autocomplete
-autoload bashcompinit && bashcompinit
-autoload -Uz compinit && compinit
-complete -C '/opt/homebrew/bin/aws_completer' aws
+# export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/mati/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/mati/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/mati/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/mati/google-cloud-sdk/completion.zsh.inc'; fi
-[[ $commands[kubectl] ]] && source <(kubectl completion zsh)
-
-# kustomze completion
-source <(kustomize completion zsh)
+kubectl_update() {
+    LATEST_STABLE=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+    curl -L -o /tmp/kubectl https://storage.googleapis.com/kubernetes-release/release/$LATEST_STABLE/bin/darwin/arm64/kubectl
+    chmod +x /tmp/kubectl
+    mv /tmp/kubectl ~/bin/
+    echo "> kubectl updated to $LATEST_STABLE"
+}
