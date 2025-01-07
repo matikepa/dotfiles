@@ -19,7 +19,7 @@ echo "export PATH=\"/opt/homebrew/bin:\$PATH\"" >> ~/.zshrc
 brew doctor
  
 # Install cli tools
-brew install brew-cask-completion watch wget tree jq yq tmux ncdu viddy coreutils rsync
+brew install brew-cask-completion watch wget tree jq yq tmux ncdu viddy coreutils rsync fzf
  
  
 # Set cool prompt
