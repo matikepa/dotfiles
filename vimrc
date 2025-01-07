@@ -9,7 +9,7 @@ syntax on
 filetype on
 
 " comments can be read easier
-colorscheme desert
+colorscheme wildcharm
 
 " removing tabs to spaces for better json editing
 set tabstop=2
