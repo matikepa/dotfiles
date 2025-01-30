@@ -59,10 +59,22 @@ export NVM_DIR="$HOME/.nvm"
 # export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
-kubectl_update() {
+# Custom functions
+rollout-restart() {
+  if [ -z "$1" ]; then
+    echo "Error: No deployment name provided."
+    echo "Available deployments:"
+    kubectl get deployments
+  else
+    kubectl rollout restart deployment "$1" && kubectl rollout status deployment "$1" --watch
+  fi
+}
+
+k_update() {
     LATEST_STABLE=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
     curl -L -o /tmp/kubectl https://storage.googleapis.com/kubernetes-release/release/$LATEST_STABLE/bin/darwin/arm64/kubectl
     chmod +x /tmp/kubectl
     mv /tmp/kubectl ~/bin/
     echo "> kubectl updated to $LATEST_STABLE"
 }
+
