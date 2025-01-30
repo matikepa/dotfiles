@@ -51,6 +51,17 @@ alias m='/usr/local/bin/minikube '
 alias kx='kubectx '
 alias kns='kubens '
 
+# functions
+rollout-restart() {
+  if [ -z "$1" ]; then
+    echo "Error: No deployment name provided."
+    echo "Available deployments:"
+    kubectl get deployments
+  else
+    kubectl rollout restart deployment "$1" && kubectl rollout status deployment "$1" --watch
+  fi
+}
+
 #git aliases
 export GIT_PATH="/Users/m.kepa/gitlocal"
 alias gco='git checkout'
