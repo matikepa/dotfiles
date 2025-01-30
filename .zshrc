@@ -22,11 +22,11 @@ COMPLETION_WAITING_DOTS="true"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-    aws
-    dotenv
-    macos
-    docker
-    docker-compose
+  aws
+  dotenv
+  macos
+  docker
+  docker-compose
 )
 source $ZSH/oh-my-zsh.sh
 
@@ -35,7 +35,7 @@ source $ZSH/oh-my-zsh.sh
 
 ## adding git branch info
 parse_git_branch() {
-    git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+  git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
 }
 ## Multiline zsh commandline
 PROMPT='%{$fg_bold[yellow]%}%n%{$reset_color%}@%{$fg_bold[cyan]%}%m%{$reset_color%} [%D{%H:%M:%S}]
@@ -47,7 +47,7 @@ PROMPT='%{$fg_bold[yellow]%}%n%{$reset_color%}@%{$fg_bold[cyan]%}%m%{$reset_colo
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 if [ -f ~/.zsh_aliases ]; then
-    . ~/.zsh_aliases
+  . ~/.zsh_aliases
 fi
 
 export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
@@ -71,10 +71,9 @@ rollout-restart() {
 }
 
 k_update() {
-    LATEST_STABLE=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
-    curl -L -o /tmp/kubectl https://storage.googleapis.com/kubernetes-release/release/$LATEST_STABLE/bin/darwin/arm64/kubectl
-    chmod +x /tmp/kubectl
-    mv /tmp/kubectl ~/bin/
-    echo "> kubectl updated to $LATEST_STABLE"
+  LATEST_STABLE=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+  curl -L -o /tmp/kubectl https://storage.googleapis.com/kubernetes-release/release/$LATEST_STABLE/bin/darwin/arm64/kubectl
+  chmod +x /tmp/kubectl
+  mv /tmp/kubectl ~/bin/
+  echo "> kubectl updated to $LATEST_STABLE"
 }
-
