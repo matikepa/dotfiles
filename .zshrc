@@ -77,4 +77,3 @@ k_update() {
     mv /tmp/kubectl ~/bin/
     echo "> kubectl updated to $LATEST_STABLE"
 }
-
