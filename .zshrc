@@ -59,6 +59,16 @@ export NVM_DIR="$HOME/.nvm"
 # export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
+# Keybinding - needs to be set also in iterm2
+# Bind Cmd + Left Arrow to move one word back
+bindkey '\eb' backward-word
+# Bind Cmd + Right Arrow to move one word forward
+bindkey '\ef' forward-word
+# Bind Cmd + Left Arrow to move to the beginning of the line
+bindkey '\ea' beginning-of-line
+# Bind Cmd + Right Arrow to move to the end of the line
+bindkey '\ee' end-of-line
+
 # Custom functions
 rollout-restart() {
   if [ -z "$1" ]; then
