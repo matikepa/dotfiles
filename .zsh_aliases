@@ -1,5 +1,6 @@
 #PATH stuff
 PATH=/opt/homebrew/bin:/Users/m.kepa/bin:$PATH
+PATH="/opt/homebrew/opt/openjdk@21/bin:$PATH"
 #add vscode search to local path
 PATH="$PATH:/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/"
 
@@ -54,6 +55,7 @@ alias kns='kubens '
 #git aliases
 export GIT_PATH="/Users/m.kepa/gitlocal"
 alias gco='git checkout'
+alias gf='git fetch --all --prune --prune-tags'
 alias gb='git branch -a'
 alias gs='git status -sb --show-stash'
 alias gl="git log --graph --decorate --pretty=oneline --abbrev-commit --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'"
@@ -65,6 +67,35 @@ alias glfulldate="git log --graph --decorate --all --topo-order --date=format-lo
 alias gp='git pull --rebase --autostash --verbose --all --prune'
 alias gp-submodule='git submodule update --init --recursive'
 alias gp-full='gp; gp-submodule'
+
+gitpowerclean() {
+    git fetch --all --prune --prune-tags
+    toremove_branches=($(git branch -vv | awk '/: gone]/ {print $1}' | grep -Ev "(^\*|master|main|dev)"))
+    if [ ${#toremove_branches[@]} -eq 0 ]; then
+        echo ">> No branches to delete."
+        return
+    fi
+    echo ">> Would delete:"
+    printf '%s\n' "${toremove_branches[@]}"
+    echo ">> Are you sure you want to delete these branches? (y/n): "
+    read "confirm"
+    if [[ $confirm =~ ^[yY]$ ]]; then
+        # Try to delete branches normally first
+        for branch in "${toremove_branches[@]}"; do
+            if [ -z "$branch" ]; then
+                continue
+            fi
+            if ! git branch -d "$branch" 2>/dev/null; then
+                echo ">> Branch '$branch' is not fully merged."
+                echo ">> Do you want to forcibly delete this branch? (y/n): "
+                read "force_confirm"
+                if [[ $force_confirm =~ ^[yY]$ ]]; then
+                    git branch -D "$branch"
+                fi
+            fi
+        done
+    fi
+}
 
 # generate your ssh
 # ssh-keygen -t ed25519 -f ~/.ssh/mkepa-xxx -a 100 -C "nameEmailDomain"
