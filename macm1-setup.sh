@@ -31,25 +31,29 @@ pip3 install awscli
 # cat <<_EOFF >>~/.zshrc
 # PROMPT='%{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info)'
 # _EOFF
+## Multiline zsh commandline prompt
+PROMPT='%{$fg_bold[yellow]%}%n%{$reset_color%}@%{$fg_bold[cyan]%}%m%{$reset_color%} [%D{%H:%M:%S}]
+%{$fg[green]%}%~%{$reset_color%} %{$fg[red]%}$(parse_git_branch)%{$reset_color%}
+> '
 
 # install multiple screen support through displaylink
 brew tap homebrew/cask-drivers
 brew install displaylink
 
 # other useful stuff
-brew install --cask iterm2 # advanced terminal
+brew install --cask iterm2              # advanced terminal
 brew install --cask visual-studio-code
 brew install --cask sublime-text
-brew install --cask dbeaver-community # db tool
-brew install --cask flameshot         # make a cool screens with arrows and stuff
-brew install --cask firefox-esr       # Firefox with extended support
+brew install --cask dbeaver-community   # db tool
+brew install --cask flameshot           # make a cool screens with arrows and stuff
+brew install --cask firefox-esr         # Firefox with extended support
 brew install --cask google-chrome
-brew install --cask orbstack  # replacement for docker desktop or use colima since its free
-brew install --cask rectangle # free window manager based on spectacle
+brew install --cask orbstack            # replacement for docker desktop or use colima since its free
+brew install --cask rectangle           # free window manager based on spectacle
 brew install --cask postman
 brew install --cask keystore-explorer
-brew install libpq      # psql for mac
-brew link --force libpq # force link for zsh
+brew install libpq                      # psql for mac
+brew link --force libpq                 # force link for zsh
 
 # # Install Docker desktop
 # wget -O Docker.dmg "https://desktop.docker.com/mac/main/arm64/Docker.dmg"
@@ -57,7 +61,7 @@ brew link --force libpq # force link for zsh
 # sudo /Volumes/Docker/Docker.app/Contents/MacOS/install
 # sudo hdiutil detach /Volumes/Docker
 
-# Instaed of docker install colima
+# Instead of docker install colima
 brew install colima
 colima start --cpu 4 --memory 8 --disk 50
 
