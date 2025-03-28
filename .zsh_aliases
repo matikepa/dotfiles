@@ -52,7 +52,6 @@ alias m='/usr/local/bin/minikube '
 alias kx='kubectx '
 alias kns='kubens '
 
-#git aliases
 export GIT_PATH="/Users/m.kepa/gitlocal"
 alias gco='git checkout'
 alias gf='git fetch --all --prune --prune-tags'
@@ -68,6 +67,7 @@ alias gp='git pull --rebase --autostash --verbose --all --prune'
 alias gp-submodule='git submodule update --init --recursive'
 alias gp-full='gp; gp-submodule'
 
+## forcibly clean the branches, usefull when branch was merged and multiple commits were squashed
 gitpowerclean() {
     git fetch --all --prune --prune-tags
     toremove_branches=($(git branch -vv | awk '/: gone]/ {print $1}' | grep -Ev "(^\*|master|main|dev)"))
