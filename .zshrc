@@ -33,14 +33,33 @@ source $ZSH/oh-my-zsh.sh
 # #set cool prompt
 # PROMPT='%{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info)'
 
+# Enable prompt substitution
+setopt PROMPT_SUBST
+
+## Kubernetes prompt function (using context name)
+kube_prompt_info() {
+  command -v kubectl &>/dev/null || return
+  local kube_context=$(kubectl config current-context 2>/dev/null)
+  [[ -z "$kube_context" ]] && return
+
+  local context_name=$(kubectl config view --minify -o jsonpath='{.contexts[0].name}' 2>/dev/null)
+  local namespace=$(kubectl config view --minify -o jsonpath='{.contexts[0].context.namespace}' 2>/dev/null)
+  [[ -z "$namespace" ]] && namespace="default"
+
+  echo -n "%{$fg[blue]%}⎈ %{$fg_bold[green]%}${context_name}%{$fg[red]%}:%{$fg[magenta]%}${namespace}%{$reset_color%}"
+}
+
 ## adding git branch info
 parse_git_branch() {
   git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
 }
-## Multiline zsh commandline
-PROMPT='%{$fg_bold[yellow]%}%n%{$reset_color%}@%{$fg_bold[cyan]%}%m%{$reset_color%} [%D{%H:%M:%S}]
+
+# Modified prompt with Kubernetes at top line
+PROMPT='
+%{$fg_bold[yellow]%}%n%{$reset_color%}@%{$fg_bold[cyan]%}%m%{$reset_color%} [%D{%H:%M:%S}] | $(kube_prompt_info)
 %{$fg[green]%}%~%{$reset_color%} %{$fg[red]%}$(parse_git_branch)%{$reset_color%}
 > '
+
 
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
@@ -86,4 +105,55 @@ k_update() {
   chmod +x /tmp/kubectl
   mv /tmp/kubectl ~/bin/
   echo "> kubectl updated to $LATEST_STABLE"
+}
+
+k9s_update() {
+    set -eo pipefail
+
+    # Detect OS and architecture dynamically
+    OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+    case $(uname -m) in
+        x86_64) ARCH="amd64" ;;
+        arm64)  ARCH="arm64" ;;
+        *)      echo "Unsupported architecture"; return 1 ;;
+    esac
+
+    # Let user select version
+    local TAG
+    TAG=$(git ls-remote --tags https://github.com/derailed/k9s.git |
+        awk -F'/' '/refs\/tags\// {print $3}' |
+        grep -v '\^{}$' |
+        sort -rV |
+        fzf --prompt="Select k9s version: ")
+
+    [ -z "$TAG" ] && echo "No version selected" && return 1
+
+    # Create temporary workspace
+    local TMP_DIR
+    TMP_DIR=$(mktemp -d)
+    trap 'rm -rf "$TMP_DIR"' EXIT
+
+    # Download and extract
+    echo "▹ Downloading k9s $TAG..."
+    if ! curl -#L "https://github.com/derailed/k9s/releases/download/$TAG/k9s_${OS}_${ARCH}.tar.gz" \
+        -o "$TMP_DIR/k9s.tar.gz"; then
+        echo "Download failed"
+        return 1
+    fi
+
+    tar -xzf "$TMP_DIR/k9s.tar.gz" -C "$TMP_DIR"
+
+    # Locate binary and verify
+    local BINARY_PATH="$TMP_DIR/k9s"
+    [ ! -f "$BINARY_PATH" ] && BINARY_PATH=$(find "$TMP_DIR" -name k9s -type f -print -quit)
+    [ ! -x "$BINARY_PATH" ] && echo "Binary not found or executable" && return 1
+
+    # Install to user's bin directory
+    local BIN_DIR="${HOME}/bin"
+    mkdir -p "$BIN_DIR"
+    chmod +x "$BINARY_PATH"
+    mv -f "$BINARY_PATH" "$BIN_DIR/"
+
+    echo "✓ k9s updated to ${TAG}"
+    "${BIN_DIR}/k9s" version
 }
