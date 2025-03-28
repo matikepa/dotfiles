@@ -52,6 +52,7 @@ alias m='/usr/local/bin/minikube '
 alias kx='kubectx '
 alias kns='kubens '
 
+##git aliases
 export GIT_PATH="/Users/m.kepa/gitlocal"
 alias gco='git checkout'
 alias gf='git fetch --all --prune --prune-tags'
