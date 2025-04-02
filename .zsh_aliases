@@ -98,6 +98,23 @@ gitpowerclean() {
     fi
 }
 
+gitnewbranch() {
+    read "JIRA_TICKET?Enter JIRA ticket number: "
+    read "BRANCH_NAME?Enter branch name: "
+    BRANCH_NAME=$(echo "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+    NEW_BRANCH="${JIRA_TICKET}_${BRANCH_NAME}"
+    if [ -z "$NEW_BRANCH" ]; then
+        echo ">> Branch name cannot be empty."
+        return
+    fi
+    if git rev-parse --verify "$NEW_BRANCH" >/dev/null 2>&1; then
+        echo ">> Branch '$NEW_BRANCH' already exists."
+        return
+    fi
+    git checkout -b "$NEW_BRANCH"
+    echo "New branch '$NEW_BRANCH' created successfully."
+}
+
 # generate your ssh
 # ssh-keygen -t ed25519 -f ~/.ssh/mkepa-xxx -a 100 -C "nameEmailDomain"
 # load ssh keys
