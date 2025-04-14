@@ -2,12 +2,41 @@
 #git add commit and push in one line
 # mkepa 03.2018
 
-echo -e "Set a comment for your push:"
+# Colors
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
 
-read comment
+# Error handling
+set -e
 
-echo ""
+# Show current branch
+current_branch=$(git branch --show-current)
+echo -e "${GREEN}Current branch: ${current_branch}${NC}"
 
+# Show git status
+echo -e "\n${GREEN}Current status:${NC}"
+git status -s
+
+# Get commit message (either from argument or prompt)
+if [ $# -eq 1 ]; then
+    comment="$1"
+else
+    echo -e "\nSet a comment for your push:"
+    read comment
+fi
+
+# Execute git commands
+echo -e "\n${GREEN}Adding changes...${NC}"
 git add .
-git commit -m " $comment "
-git push
+
+echo -e "${GREEN}Committing...${NC}"
+git commit --no-verify -m "$comment"
+
+echo -e "${GREEN}Pushing to remote...${NC}"
+git push || {
+    echo -e "${RED}Push failed. Make sure you have access to the remote repository.${NC}"
+    exit 1
+}
+
+echo -e "${GREEN}Successfully pushed to ${current_branch}${NC}"
