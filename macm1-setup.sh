@@ -19,10 +19,16 @@ echo "export PATH=\"/opt/homebrew/bin:\$PATH\"" >>~/.zshrc
 brew doctor
 
 # Install cli tools
-brew install brew-cask-completion watch wget tree jq yq tmux ncdu viddy coreutils rsync fzf
+brew install brew-cask-completion watch wget tree jq yq tmux ncdu viddy coreutils rsync fzf pre-commit
+
+# Install TF, helm 
+brew install helmenv helmfile 
+brew install tfenv tflint tfsec
+tfenv install latest
+helmenv install 3.15.4
 
 # install amazon tools
-brew install python3
+brew install python3 pipx
 pip3 install awscli
 
 # # Set default prompt
@@ -52,6 +58,7 @@ brew install --cask orbstack            # replacement for docker desktop or use 
 brew install --cask rectangle           # free window manager based on spectacle
 brew install --cask postman
 brew install --cask keystore-explorer
+brew install --cask beyond-compare      # advanced diff tool
 brew install libpq                      # psql for mac
 brew link --force libpq                 # force link for zsh
 
@@ -65,6 +72,9 @@ brew link --force libpq                 # force link for zsh
 brew install colima
 colima start --cpu 4 --memory 8 --disk 50
 
+brew install docker-completion hadolint
+
+
 # Install kubectl
 LATEST_STABLE=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
 curl -LO https://storage.googleapis.com/kubernetes-release/release/$LATEST_STABLE/bin/darwin/amd64/kubectl
@@ -77,12 +87,6 @@ chmod +x minikube
 sudo mv minikube /usr/local/bin/
 
 minikube start --kubernetes-version=v1.31 --addons metrics-server,ingress --driver=docker
-
-# Install other tools
-brew install docker-completion
-brew install tfenv helmenv
-tfenv install latest
-helmenv install 3.15.4
 
 # Generate SSH key
 ssh-keygen -t ed25519 -f ~/.ssh/mkepa-xxx -a 100 -C "nameEmailDomain"
