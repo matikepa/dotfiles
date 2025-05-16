@@ -51,7 +51,7 @@ brew install --cask iterm2              # advanced terminal
 brew install --cask visual-studio-code
 brew install --cask sublime-text
 brew install --cask dbeaver-community   # db tool
-brew install --cask flameshot           # make a cool screens with arrows and stuff
+brew install --cask flameshot           # sudo xattr -rd com.apple.quarantine /Applications/flameshot.app # to allow execution
 brew install --cask firefox-esr         # Firefox with extended support
 brew install --cask google-chrome
 brew install --cask orbstack            # replacement for docker desktop or use colima since its free
