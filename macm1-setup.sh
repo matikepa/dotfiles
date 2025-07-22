@@ -89,7 +89,7 @@ sudo mv minikube /usr/local/bin/
 minikube start --kubernetes-version=v1.31 --addons metrics-server,ingress --driver=docker
 
 # Generate SSH key
-ssh-keygen -t ed25519 -f ~/.ssh/mkepa-xxx -a 100 -C "nameEmailDomain"
+ssh-keygen -t ed25519 -f ~/.ssh/mkepa-xxx -a 100 -C "m.kepa@DOMAIN"
 
 ######################
 ###     OPTIONAL   ###
@@ -127,17 +127,18 @@ sudo mv /usr/bin/git /usr/bin/default-git
 brew install git
 brew link --force git #OPTIONAL
 git --version
-git config --global user.name "mm"
-git config --global user.email "nameEmailDomain"
+git config --global user.name "Mateusz (Mati) Kepa"
+git config --global user.email "m.kepa@DOMAIN"
+git config --global core.sshcommand "ssh -i /Users/user/.ssh/private_key"
 git config --global gpg.format ssh
-git config --global user.signingkey 'ssh-ed25519 AAAAxxxxxxx nameEmailDomain'
+git config --global user.signingkey 'ssh-ed25519 AAAAxxxxxxx m.kepa@DOMAIN'
 git config --global commit.gpgsign true
 git config --global tag.gpgsign true
 
 # In case ssh/gpg signing does not work, create following file
 ~/.config/git/allowed_signers
 # with content (you can add more keys here)
-nameEmailDomain ssh-ed25519 AAAAxxxxxxx nameEmailDomain
+nameEmailDomain ssh-ed25519 AAAAxxxxxxx m.kepa@DOMAIN
 # add to global config
 git config --global gpg.ssh.allowedSignersFile "$HOME/.config/git/allowed_signers"
 
