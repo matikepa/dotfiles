@@ -62,6 +62,14 @@ brew install --cask beyond-compare      # advanced diff tool
 brew install libpq                      # psql for mac
 brew link --force libpq                 # force link for zsh
 
+# # Flameshot is beeing problematic recently , heres manual steps to install 
+# wget https://github.com/flameshot-org/flameshot/releases/download/v13.0.0/Flameshot-13.0.0.dmg && \
+# mv Flameshot-13.0.0.dmg flameshot.dmg && \
+# hdiutil attach flameshot.dmg && \
+# cp -R /Volumes/Flameshot/Flameshot.app /Applications/ && \
+# hdiutil detach /Volumes/Flameshot && \
+# sudo xattr -rd com.apple.quarantine /Applications/flameshot.app
+
 # # Install Docker desktop
 # wget -O Docker.dmg "https://desktop.docker.com/mac/main/arm64/Docker.dmg"
 # sudo hdiutil attach Docker.dmg
