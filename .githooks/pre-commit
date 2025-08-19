@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Get the current branch name
+branch_name=$(git rev-parse --abbrev-ref HEAD)
+echo "Current branch: $branch_name"
+
+# Use regex to extract the JIRA ticket number
+if [[ $branch_name =~ ([A-Z]+-[0-9]+) ]]; then
+    jira_ticket=${BASH_REMATCH[1]}
+    echo "$jira_ticket: "
+else
+    echo "Error: Branch '$branch_name' must contain a JIRA ticket (e.g., ODX-123)"
+    exit 1
+fi
