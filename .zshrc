@@ -54,19 +54,32 @@ parse_git_branch() {
   git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
 }
 
+## Terraform workspace function
+tf_workspace() {
+  command -v terraform &>/dev/null || return
+  local workspace=$(terraform workspace show 2>/dev/null)
+  [[ -z "$workspace" ]] && return
+  echo -n "🧱 %{$FG[141]%}${workspace}%{$reset_color%}"
+}
+
 # Modified prompt with Kubernetes at top line
 PROMPT='
-%{$fg_bold[yellow]%}%n%{$reset_color%}@%{$fg_bold[cyan]%}%m%{$reset_color%} [%D{%H:%M:%S}] | $(kube_prompt_info)
+%{$fg_bold[yellow]%}%n%{$reset_color%}@%{$fg_bold[cyan]%}%m%{$reset_color%} [%D{%H:%M:%S}] | $(kube_prompt_info) | $(tf_workspace)
 %{$fg[green]%}%~%{$reset_color%} %{$fg[red]%}$(parse_git_branch)%{$reset_color%}
 > '
-
 
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+# Then source your aliases file
 if [ -f ~/.zsh_aliases ]; then
   . ~/.zsh_aliases
+fi
+
+# Export some custom functions to separate file
+if [ -f ~/.zsh_functions ]; then
+  . ~/.zsh_functions
 fi
 
 export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
@@ -88,72 +101,24 @@ bindkey '\ea' beginning-of-line
 # Bind Cmd + Right Arrow to move to the end of the line
 bindkey '\ee' end-of-line
 
-# Custom functions
-rollout-restart() {
-  if [ -z "$1" ]; then
-    echo "Error: No deployment name provided."
-    echo "Available deployments:"
-    kubectl get deployments
-  else
-    kubectl rollout restart deployment "$1" && kubectl rollout status deployment "$1" --watch
-  fi
-}
-
-k_update() {
-  LATEST_STABLE=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
-  curl -L -o /tmp/kubectl https://storage.googleapis.com/kubernetes-release/release/$LATEST_STABLE/bin/darwin/arm64/kubectl
-  chmod +x /tmp/kubectl
-  mv /tmp/kubectl ~/bin/
-  echo "> kubectl updated to $LATEST_STABLE"
-}
-
-k9s_update() {
-    set -eo pipefail
-
-    # Detect OS and architecture dynamically
-    OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-    case $(uname -m) in
-        x86_64) ARCH="amd64" ;;
-        arm64)  ARCH="arm64" ;;
-        *)      echo "Unsupported architecture"; return 1 ;;
-    esac
-
-    # Let user select version
-    local TAG
-    TAG=$(git ls-remote --tags https://github.com/derailed/k9s.git |
-        awk -F'/' '/refs\/tags\// {print $3}' |
-        grep -v '\^{}$' |
-        sort -rV |
-        fzf --prompt="Select k9s version: ")
-
-    [ -z "$TAG" ] && echo "No version selected" && return 1
-
-    # Create temporary workspace
-    local TMP_DIR
-    TMP_DIR=$(mktemp -d)
-    trap 'rm -rf "$TMP_DIR"' EXIT
-
-    # Download and extract
-    echo "▹ Downloading k9s $TAG..."
-    if ! curl -#L "https://github.com/derailed/k9s/releases/download/$TAG/k9s_${OS}_${ARCH}.tar.gz" \
-        -o "$TMP_DIR/k9s.tar.gz"; then
-        echo "Download failed"
-        return 1
-    fi
-
-    tar -xzf "$TMP_DIR/k9s.tar.gz" -C "$TMP_DIR"
-
-    # Locate binary and verify
-    local BINARY_PATH="$TMP_DIR/k9s"
-    [ ! -f "$BINARY_PATH" ] && BINARY_PATH=$(find "$TMP_DIR" -name k9s -type f -print -quit)
-    [ ! -x "$BINARY_PATH" ] && echo "Binary not found or executable" && return 1
-
-    # Install to user's bin directory
-    local BIN_DIR="${HOME}/bin"
-    mkdir -p "$BIN_DIR"
-    chmod +x "$BINARY_PATH"
-    mv -f "$BINARY_PATH" "$BIN_DIR/"
-
-    echo "✓ k9s updated to ${TAG}"
-    "${BIN_DIR}/k9s" version
-}
+# ---------------------
+# Eternal zsh history.
+# ---------------------
+# Based on https://unix.stackexchange.com/questions/273861/unlimited-history-in-zsh
+# ---------------------
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=10000000
+SAVEHIST=10000000
+setopt BANG_HIST                 # Treat the '!' character specially during expansion.
+setopt EXTENDED_HISTORY          # Write the history file in the ":start:elapsed;command" format.
+setopt INC_APPEND_HISTORY        # Write to the history file immediately, not when the shell exits.
+setopt SHARE_HISTORY             # Share history between all sessions.
+setopt HIST_EXPIRE_DUPS_FIRST    # Expire duplicate entries first when trimming history.
+setopt HIST_IGNORE_DUPS          # Don't record an entry that was just recorded again.
+setopt HIST_IGNORE_ALL_DUPS      # Delete old recorded entry if new entry is a duplicate.
+setopt HIST_FIND_NO_DUPS         # Do not display a line previously found.
+setopt HIST_IGNORE_SPACE         # Don't record an entry starting with a space.
+setopt HIST_SAVE_NO_DUPS         # Don't write duplicate entries in the history file.
+setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks before recording entry.
+setopt HIST_VERIFY               # Don't execute immediately upon history expansion.
+setopt HIST_BEEP                 # Beep when accessing nonexistent history.
