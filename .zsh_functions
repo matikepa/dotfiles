@@ -1,0 +1,375 @@
+# Custom functions
+rollout-restart() {
+    if [ -z "$1" ]; then
+        echo "Error: No deployment name provided."
+        echo "Available deployments:"
+        kubectl get deployments
+    else
+        kubectl rollout restart deployment "$1" && kubectl rollout status deployment "$1" --watch
+    fi
+}
+
+k_update() {
+    LATEST_STABLE=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+    curl -L https://storage.googleapis.com/kubernetes-release/release/$LATEST_STABLE/bin/darwin/arm64/kubectl --output /tmp/kubectl
+    chmod +x /tmp/kubectl
+    mv /tmp/kubectl ~/bin/
+    echo "> kubectl updated to $LATEST_STABLE"
+    ~/bin/kubectl version --client
+}
+
+arch() {
+    if [ $1 != "$(docker images | grep $1)" ]; then
+        docker pull "$1" || echo 'provide docker image'
+        echo ">> Your docker image architecture is:"
+        docker inspect "$1" | yq -r '.[].Architecture'
+    fi
+}
+
+kgetambasador() {
+
+    for x in $(kubectl get service | grep LoadBalancer | awk '{print $1}'); do
+        echo "Service: $x"
+        echo "DNS: $(kubectl get service $x -o yaml | yq -r .metadata.annotations'."external-dns.alpha.kubernetes.io/hostname"')"
+    done
+}
+
+# Loading Github ssh key
+ghssh() {
+    # SSH key path (adjust as needed)
+    local SSH_KEY_PATH="${1:-$HOME/.ssh/mati-github}"
+    
+    # Function to check if the SSH key is loaded
+    local is_ssh_key_loaded() {
+        ssh-add -l | grep -q "kepa.eu.org"
+    }
+    
+    # Function to load the SSH key
+    local load_ssh_key() {
+        # Attempt to add the SSH key with password prompt
+        ssh-add "$SSH_KEY_PATH"
+        
+        # Check if the key was successfully added
+        if [ $? -eq 0 ]; then
+            echo "SSH key for kepa.eu.org successfully loaded"
+            return 0
+        else
+            echo "Failed to load SSH key. Please check the password and key path."
+            return 1
+        fi
+    }
+    # Main function logic
+    if ! is_ssh_key_loaded; then
+        echo "SSH key for kepa.eu.org not loaded. Attempting to load..."
+        
+        # Ensure ssh-agent is running
+        if [ -z "$SSH_AUTH_SOCK" ]; then
+            eval "$(ssh-agent -s)"
+        fi
+        
+        # Load the SSH key (will prompt for password)
+        load_ssh_key
+    else
+        echo "SSH key for kepa.eu.org is already loaded"
+    fi
+}
+
+# srlogin(){
+#     echo ">> Logging in to SPORTRADAR AWS Account"
+#     /opt/homebrew/bin/awsprofile login --force
+# }
+
+srlogin(){
+    echo ">> Checking SPORTRADAR AWS Account login"
+    output=$(/opt/homebrew/bin/awsprofile --no-color login 2>&1)
+    if [ $? -ne 0 ]; then
+        echo ">> Not logged in, logging in now"
+        /opt/homebrew/bin/awsprofile login --force
+    else
+        echo ">> Already logged in"
+        echo "$output"
+    fi
+}
+
+srnonprod(){
+    # Capture both exit code and output separately
+    local profile
+    profile="no_trd_odds_nonprod"
+    local output
+    output=$(/opt/homebrew/bin/awsprofile --no-color $profile --role CloudDevOps 2>&1)
+    local exit_code=$?
+    
+    if [ $exit_code -ne 0 ]; then
+        echo ">> Failed to change AWS profile to $profile"
+        echo ">> Error: $output"
+        echo ">> Please login to AWS"
+        srlogin
+    else
+        echo ">> Successfully changed AWS profile to $profile"
+        echo ">> $output"
+        echo ">> changing kubectl context to nonprod"
+        /opt/homebrew/bin/kubectx nonprod.euc1.srodds.io
+    fi
+}
+
+srprod(){
+    # Capture both exit code and output separately
+    local profile
+    profile="no_trd_odds_prod"
+    local output
+    output=$(/opt/homebrew/bin/awsprofile --no-color $profile --role CloudDevOps 2>&1)
+    local exit_code=$?
+    
+    if [ $exit_code -ne 0 ]; then
+        echo ">> Failed to change AWS profile to $profile "
+        echo ">> Error: $output"
+        echo ">> Please login to AWS"
+        srlogin
+    else
+        echo ">> Successfully changed AWS profile to $profile "
+        echo ">> $output"
+        echo ">> changing kubectl context to prod"
+        /opt/homebrew/bin/kubectx prod.euc1.srodds.io
+    fi
+}
+
+# k9s_update() {
+#   ZIP_LOCATION=/tmp/k9s.tgz
+#   FILE_LOCATION=/tmp/k9s
+#   TAG_LIST=$(git ls-remote --tags https://github.com/derailed/k9s.git | awk -F'/' '/refs\/tags\// {print $3}'| grep -v '\^{}$' |sort -r |fzf)
+#   curl -L https://github.com/derailed/k9s/releases/download/$TAG_LIST/k9s_darwin_arm64.tar.gz --output $ZIP_LOCATION
+#   tar -xvf $ZIP_LOCATION -C /tmp
+#   chmod +x $FILE_LOCATION
+#   mv $FILE_LOCATION ~/bin/
+#   echo "> k9s updated to $TAG_LIST"
+#   ~/bin/k9s version
+# }
+
+k9s_update() {
+    set -eo pipefail
+
+    # Detect OS and architecture dynamically
+    OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+    case $(uname -m) in
+    x86_64) ARCH="amd64" ;;
+    arm64) ARCH="arm64" ;;
+    *)
+        echo "Unsupported architecture"
+        return 1
+        ;;
+    esac
+
+    # Let user select version
+    local TAG
+    TAG=$(git ls-remote --tags https://github.com/derailed/k9s.git |
+        awk -F'/' '/refs\/tags\// {print $3}' |
+        grep -v '\^{}$' |
+        sort -rV |
+        fzf --prompt="Select k9s version: ")
+
+    [ -z "$TAG" ] && echo "No version selected" && return 1
+
+    # Create temporary workspace
+    local TMP_DIR
+    TMP_DIR=$(mktemp -d)
+    trap 'rm -rf "$TMP_DIR"' EXIT
+
+    # Download and extract
+    echo "▹ Downloading k9s $TAG..."
+    if ! curl -#L "https://github.com/derailed/k9s/releases/download/$TAG/k9s_${OS}_${ARCH}.tar.gz" \
+        -o "$TMP_DIR/k9s.tar.gz"; then
+        echo "Download failed"
+        return 1
+    fi
+
+    tar -xzf "$TMP_DIR/k9s.tar.gz" -C "$TMP_DIR"
+
+    # Locate binary and verify
+    local BINARY_PATH="$TMP_DIR/k9s"
+    [ ! -f "$BINARY_PATH" ] && BINARY_PATH=$(find "$TMP_DIR" -name k9s -type f -print -quit)
+    [ ! -x "$BINARY_PATH" ] && echo "Binary not found or executable" && return 1
+
+    # Install to user's bin directory
+    local BIN_DIR="${HOME}/bin"
+    mkdir -p "$BIN_DIR"
+    chmod +x "$BINARY_PATH"
+    mv -f "$BINARY_PATH" "$BIN_DIR/"
+
+    echo "✓ k9s updated to ${TAG}"
+    "${BIN_DIR}/k9s" version
+}
+
+########################
+# Custom git Functions #
+########################
+
+## forcibly clean the branches, usefull when branch was merged and multiple commits were squashed
+gitpowerclean() {
+    git fetch --all --prune --prune-tags
+    toremove_branches=($(git branch -vv | awk '/: gone]/ {print $1}' | grep -Ev "(^\*|master|main|dev)"))
+    if [ ${#toremove_branches[@]} -eq 0 ]; then
+        echo ">> No branches to delete."
+        return
+    fi
+    echo ">> Would delete:"
+    printf '%s\n' "${toremove_branches[@]}"
+    echo ">> Are you sure you want to delete these branches? (y/n): "
+    read "confirm"
+    if [[ $confirm =~ ^[yY]$ ]]; then
+        # Try to delete branches normally first
+        for branch in "${toremove_branches[@]}"; do
+            if [ -z "$branch" ]; then
+                continue
+            fi
+            if ! git branch -d "$branch" 2>/dev/null; then
+                echo ">> Branch '$branch' is not fully merged."
+                echo ">> Do you want to forcibly delete this branch? (y/n): "
+                read "force_confirm"
+                if [[ $force_confirm =~ ^[yY]$ ]]; then
+                    git branch -D "$branch"
+                fi
+            fi
+        done
+    fi
+}
+
+gitnewbranch() {
+    read "JIRA_TICKET?Enter JIRA ticket number: "
+    read "BRANCH_NAME?Enter branch name: "
+    BRANCH_NAME=$(echo "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+    NEW_BRANCH="${JIRA_TICKET}_${BRANCH_NAME}"
+    if [ -z "$NEW_BRANCH" ]; then
+        echo ">> Branch name cannot be empty."
+        return
+    fi
+    if git rev-parse --verify "$NEW_BRANCH" >/dev/null 2>&1; then
+        echo ">> Branch '$NEW_BRANCH' already exists."
+        return
+    fi
+    git checkout -b "$NEW_BRANCH"
+    echo "New branch '$NEW_BRANCH' created successfully."
+}
+
+#############################################
+# Custom functions for SR ODDS TEAM         #
+#############################################
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+tfws() {
+    # Check if the environment argument is provided
+    if [ -z "$1" ]; then
+        echo -e "${RED}Usage: $0 <environment>${NC}"
+        return 1
+    fi
+
+    # set the terraform workspace to the provided environment
+    # based on the current directory name with a suffix of the provided environment and euc1
+    export TF_WORKSPACE="$(basename "$(pwd)")-$1-euc1"
+    echo -e "${GREEN}Executing: export TF_WORKSPACE=${TF_WORKSPACE}"
+}
+
+tfplan() {
+    # Check if the environment argument is provided
+    if [ -z "$1" ]; then
+        echo -e "${RED}Usage: $0 <environment>${NC}"
+        return 1
+    fi
+
+    env=$1
+
+    # Check if terraform is initialized
+    if [ ! -d ".terraform" ]; then
+        echo -e "${RED}Terraform not initialized.${NC}"
+        read -q "REPLY?Do you want to run terraform init? (y/n) "
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            if ! terraform init; then
+                echo -e "${RED}Terraform init failed! Try to run it separately${NC}"
+                return 1
+            fi
+        else
+            echo -e "${RED}Terraform init skipped. Exiting.${NC}"
+        fi
+    fi
+
+    # Determine the variables directory based on the existence of backend_config files
+    if [ -f "backend_config.jinja" ] || [ -f "backend_config.tf" ]; then
+        # nonTFE logic
+        variables_dir="./config/${env}"
+        # Match files like operations-eks.feature.euc1.tfvars
+        var_file=$(find "$variables_dir" -type f -name "*${env}*.tfvars" | head -n 1)
+    else
+        # TFE logic
+        variables_dir="./variables"
+        # Match files like terraform-${env}.tfvars
+        var_file=$(find "$variables_dir" -type f -name "*.${env}*.tfvars" | head -n 1)
+    fi
+
+    # Check if a variable file was found
+    if [ -z "$var_file" ]; then
+        echo -e "${RED}No variable file found for environment: $env in $variables_dir${NC}"
+        return 1
+    fi
+
+    # Execute the terraform plan command with the found file name and environment variable
+    echo -e "${GREEN}Executing: terraform plan -var-file=\"${var_file}\" -var \"environment=${env}\"${NC}"
+    terraform plan -var-file="${var_file}" -var "environment=${env}"
+}
+
+tfapply() {
+    # Check if the environment argument is provided
+    if [ -z "$1" ]; then
+        echo -e "${RED}Usage: $0 <environment>${NC}"
+        return 1
+    fi
+
+    # Set the path to the variables directory
+    variables_dir="./variables"
+
+    # Find the variable file in the 'variables' directory that contains the environment name
+    env=$1
+    var_file=$(find "$variables_dir" -type f -name "*.${env}*.tfvars" | head -n 1)
+
+    # Check if a variable file was found
+    if [ -z "$var_file" ]; then
+        echo -e "${RED}No variable file found for environment: $env in $variables_dir${NC}"
+        return 1
+    fi
+
+    # Execute the terraform plan command with the found file name and environment variable
+    echo -e "${GREEN}Executing: terraform apply -var-file=\"${var_file}\" -var \"environment=${env}\"${NC}"
+    terraform apply -var-file="${var_file}" -var "environment=${env}"
+}
+
+tfinit() {
+    # Check if main.tf exists
+    if [ ! -f "main.tf" ]; then
+        echo -e "${RED}Error: main.tf not found in current directory, are you in correct folder?${NC}"
+        return 1
+    fi
+
+    # Check if .terraform directory exists
+    if [ -d ".terraform" ]; then
+        echo -e "${RED}Found existing .terraform directory.${NC}"
+        read -q "REPLY?Do you want to remove it and reinitialize? (y/n) "
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            rm -rf .terraform
+            echo -e "${GREEN}Removed .terraform directory${NC}"
+        else
+            echo -e "${RED}Keeping existing .terraform directory.${NC}"
+        fi
+    fi
+
+    # Run terraform init
+    echo -e "${GREEN}Running terraform init...${NC}"
+    if ! terraform init; then
+        echo -e "${RED}Terraform init failed! Try to run it separately${NC}"
+        return 1
+    fi
+    echo -e "${GREEN}Terraform initialization completed successfully${NC}"
+}
